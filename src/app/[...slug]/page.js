@@ -7,8 +7,10 @@ const allPosts = [...postsData, ...latestNews];
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
-  const slugPath = '/' + resolvedParams.slug.join('/');
-  const post = allPosts.find((p) => p.slug === slugPath);
+  const slugPath = resolvedParams.slug.join('/');
+  
+  // Normalize by stripping leading slash from both for comparison
+  const post = allPosts.find((p) => p.slug.replace(/^\//, '') === slugPath);
 
   if (!post) {
     return { title: 'Not Found' };
@@ -29,8 +31,10 @@ export function generateStaticParams() {
 
 export default async function PostPage({ params }) {
   const resolvedParams = await params;
-  const slugPath = '/' + resolvedParams.slug.join('/');
-  const post = allPosts.find((p) => p.slug === slugPath);
+  const slugPath = resolvedParams.slug.join('/');
+  
+  // Normalize by stripping leading slash
+  const post = allPosts.find((p) => p.slug.replace(/^\//, '') === slugPath);
 
   if (!post) {
     notFound();

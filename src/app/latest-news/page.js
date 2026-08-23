@@ -1,6 +1,12 @@
 import Link from "next/link";
 import AdBanner from "@/components/AdBanner";
-import latestNews from "@/data/latest-news.json";
+import latestNewsData from "@/data/latest-news.json";
+import postsData from "@/data/posts.json";
+
+// Combine and sort all posts and news by date descending
+const allNews = [...postsData, ...latestNewsData]
+  .filter(p => p.type === 'POST' || p.type === 'LATEST_NEWS')
+  .sort((a, b) => new Date(b.published) - new Date(a.published));
 
 export const metadata = {
   title: "Latest Tech News - Int3lion",
@@ -23,8 +29,8 @@ export default function LatestNews() {
 
       <section style={{ padding: "var(--spacing-lg) 0" }}>
         <div className="grid-cards">
-          {latestNews.map((news, idx) => (
-            <Link href={news.slug} key={idx} className="premium-card" style={{ display: "flex", flexDirection: "column", padding: 0, overflow: 'hidden' }}>
+          {allNews.map((news, idx) => (
+            <Link href={news.slug.startsWith('/') ? news.slug : `/${news.slug}`} key={idx} className="premium-card" style={{ display: "flex", flexDirection: "column", padding: 0, overflow: 'hidden' }}>
               <div style={{
                 height: '160px',
                 width: '100%',
