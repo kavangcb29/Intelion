@@ -94,6 +94,12 @@ async function runImageAgent() {
             }
           }
         }
+        
+        if (!success) {
+          console.log("   ⚠️ All retries failed. Applying unique fallback.");
+          posts[i].imageUrl = `https://picsum.photos/seed/${i * Date.now()}/1200/800`;
+          updatedCount++;
+        }
     }
   }
 
