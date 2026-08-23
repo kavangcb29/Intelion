@@ -1,19 +1,42 @@
 import postsData from '@/data/posts.json';
 import latestNews from '@/data/latest-news.json';
 
-const allPosts = [...postsData, ...latestNews];
-const URL = 'https://intelion.blogspot.com'; // Replace with the actual live domain later
-
 export default function sitemap() {
-  const routes = ['', '/latest-news'].map((route) => ({
-    url: `${URL}${route}`,
-    lastModified: new Date().toISOString(),
-  }));
+  const baseUrl = 'https://intelion.onrender.com';
+  
+  const allPosts = [...postsData, ...latestNews];
 
-  const postRoutes = allPosts.map((post) => ({
-    url: `${URL}${post.slug}`,
-    lastModified: post.published,
-  }));
+  const postUrls = allPosts.map((post) => {
+    // Ensure slug starts with /
+    const cleanSlug = post.slug.startsWith('/') ? post.slug : `/${post.slug}`;
+    
+    return {
+      url: `${baseUrl}${cleanSlug}`,
+      lastModified: new Date(post.published),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    };
+  });
 
-  return [...routes, ...postRoutes];
+  return [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/latest-news`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    ...postUrls,
+  ];
 }

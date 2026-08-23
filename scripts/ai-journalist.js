@@ -44,9 +44,9 @@ async function runJournalist() {
 
     Task:
     1. Select exactly 10 topics that have the HIGHEST combined potential for:
-       - Search Engine Optimization (SEO) traffic.
+       - Organic Search Traffic (Prioritize long-tail keywords, viral tech questions, and low-competition/high-volume search queries that drive natural flow from Google).
        - Affiliate Marketing Conversions (prioritizing consumer hardware, gadgets, laptops, smartphones, GPUs, or electronics that can be purchased on Amazon).
-    2. Focus on AI, ML, Cyber Security, and especially tangible consumer tech products.
+    2. Focus on AI, ML, Cyber Security, and especially tangible consumer tech products that people are actively searching for reviews or tutorials on.
     
     Output exactly a JSON array of the 10 chosen topics with the following structure:
     [
