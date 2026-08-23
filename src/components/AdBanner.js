@@ -10,9 +10,8 @@ export default function AdBanner({ isSticky }) {
     
     if (bannerRef.current) {
       // ADSTERRA CONFIGURATION
-      // Update these values when you get your specific Adsterra Ad Unit
       const atOptions = {
-        'key' : 'YOUR_ADSTERRA_KEY_HERE', 
+        'key' : 'dfdf7d00015faafd2d88c298792dd982', 
         'format' : 'iframe',
         'height' : isSticky ? 50 : 90,
         'width' : isSticky ? 320 : 728,
@@ -25,7 +24,7 @@ export default function AdBanner({ isSticky }) {
       
       const script2 = document.createElement('script');
       script2.type = 'text/javascript';
-      script2.src = `//www.highperformanceformat.com/${atOptions.key}/invoke.js`;
+      script2.src = `//www.highrevenueformat.com/${atOptions.key}/invoke.js`;
 
       bannerRef.current.appendChild(script1);
       bannerRef.current.appendChild(script2);
