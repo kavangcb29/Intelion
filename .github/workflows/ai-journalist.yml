@@ -38,12 +38,16 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node scripts/image-agent.js
 
+      - name: Generate Sitemap
+        run: node generate-sitemap.js
+
       - name: Commit and Push New Articles
         run: |
           git config --global user.name "Int3lion AI Journalist"
           git config --global user.email "ai-agent@intelion.blog"
           
           git add src/data/posts.json
+          git add public/sitemap.xml
           
           # Only commit if there are actually changes to avoid failing the action
           if git diff --staged --quiet; then
