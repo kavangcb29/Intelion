@@ -59,7 +59,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={inter.className}>
         <Header />
-        <main className="main-content">
+        <main className="main-content animate-enter">
           {children}
         </main>
         <Footer />
