@@ -95,6 +95,19 @@ export default async function PostPage({ params }) {
         {secondHalf && <div dangerouslySetInnerHTML={{ __html: secondHalf }} />}
       </div>
 
+      {/* Adsterra Smart Link (Direct Link) Button */}
+      <div style={{ marginTop: 'var(--spacing-xl)', textAlign: 'center' }}>
+        <a 
+          href="https://www.profitableratecpmnetwork.com/w1wf6wzw?key=0671792f0952ef6eeb83f802c7911b6e" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="btn-primary"
+          style={{ display: 'inline-block', fontSize: '1.1rem', padding: '12px 24px' }}
+        >
+          View Exclusive Tech Offers &rarr;
+        </a>
+      </div>
+
       <div style={{ marginTop: 'var(--spacing-xl)' }}>
         <AdBanner />
       </div>
