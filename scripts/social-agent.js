@@ -1,38 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const { TwitterApi } = require('twitter-api-v2');
-const snoowrap = require('snoowrap');
 const { GoogleGenAI } = require('@google/genai');
 
 const POSTS_FILE = path.join(__dirname, '../src/data/posts.json');
+const QUEUE_FILE = path.join(__dirname, '../src/data/social-queue.json');
 const BASE_URL = 'https://intelion.onrender.com';
 
-// Initialize APIs
+// Initialize API
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-// Skip authentication if we are just running a dry-run test
-const isDryRun = process.env.SOCIAL_DRY_RUN === 'true';
-
-let twitterClient, redditClient;
-
-if (!isDryRun) {
-  // Twitter API v2 Client
-  twitterClient = new TwitterApi({
-    appKey: process.env.TWITTER_API_KEY,
-    appSecret: process.env.TWITTER_API_SECRET,
-    accessToken: process.env.TWITTER_ACCESS_TOKEN,
-    accessSecret: process.env.TWITTER_ACCESS_SECRET,
-  }).readWrite;
-
-  // Reddit API Client
-  redditClient = new snoowrap({
-    userAgent: 'Int3lion Autonomous Social Agent v1.0',
-    clientId: process.env.REDDIT_CLIENT_ID,
-    clientSecret: process.env.REDDIT_CLIENT_SECRET,
-    username: process.env.REDDIT_USERNAME,
-    password: process.env.REDDIT_PASSWORD
-  });
-}
 
 async function generateSocialCopy(article) {
   const prompt = `
@@ -79,7 +54,7 @@ async function generateSocialCopy(article) {
 }
 
 async function runSocialAgent() {
-  console.log("🤖 Initializing Autonomous Social Agent...");
+  console.log("🤖 Initializing Autonomous Social Agent (Dashboard Mode)...");
   
   if (!fs.existsSync(POSTS_FILE)) {
     console.log("❌ No posts.json found. Exiting.");
@@ -88,11 +63,11 @@ async function runSocialAgent() {
 
   const posts = JSON.parse(fs.readFileSync(POSTS_FILE, 'utf-8'));
   
-  // Find the most recent post that hasn't been shared on social media yet
+  // Find the most recent post that hasn't been queued for social media yet
   const unsharedPostIndex = posts.findIndex(p => !p.socialShared);
   
   if (unsharedPostIndex === -1) {
-    console.log("✅ All articles have already been promoted on social media! Exiting.");
+    console.log("✅ All articles have already been queued! Exiting.");
     return;
   }
   
@@ -106,51 +81,31 @@ async function runSocialAgent() {
   
   if (!copy) return;
   
-  console.log("\n--- GENERATED COPY ---");
-  console.log("🐦 Twitter:");
-  console.log(`${copy.twitter_body}\n🔗 ${articleUrl}`);
-  console.log("\n👾 Reddit (Subreddit: r/" + copy.subreddit + "):");
-  console.log(`Title: ${copy.reddit_title}`);
-  console.log(`URL: ${articleUrl}`);
-  console.log("----------------------\n");
-  
-  if (isDryRun) {
-    console.log("⚠️ SOCIAL_DRY_RUN is true. Skipping actual API posting.");
-    // We still mark it as shared in dry-run for testing purposes if you want, but usually better not to.
-    return;
+  // Save to the hidden dashboard queue
+  let queue = [];
+  if (fs.existsSync(QUEUE_FILE)) {
+    queue = JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf-8'));
   }
   
-  // LIVE POSTING
-  try {
-    // 1. Post to Twitter
-    if (process.env.TWITTER_API_KEY) {
-      console.log("🚀 Posting to X (Twitter)...");
-      await twitterClient.v2.tweet(`${copy.twitter_body}\n\n${articleUrl}`);
-      console.log("✅ Successfully tweeted!");
-    } else {
-      console.log("⚠️ Skipping Twitter: No API keys provided.");
-    }
-    
-    // 2. Post to Reddit
-    if (process.env.REDDIT_CLIENT_ID) {
-      console.log(`🚀 Posting to r/${copy.subreddit}...`);
-      await redditClient.getSubreddit(copy.subreddit).submitLink({
-        title: copy.reddit_title,
-        url: articleUrl
-      });
-      console.log("✅ Successfully posted to Reddit!");
-    } else {
-      console.log("⚠️ Skipping Reddit: No API keys provided.");
-    }
-    
-    // 3. Mark as shared in database
-    posts[unsharedPostIndex].socialShared = true;
-    fs.writeFileSync(POSTS_FILE, JSON.stringify(posts, null, 2));
-    console.log(`\n💾 Marked article as socialShared in posts.json`);
-    
-  } catch (error) {
-    console.error("❌ Fatal Error during live posting:", error);
-  }
+  queue.unshift({
+    articleTitle: targetPost.title,
+    articleUrl: articleUrl,
+    twitter: copy.twitter_body,
+    redditTitle: copy.reddit_title,
+    subreddit: copy.subreddit,
+    dateAdded: new Date().toISOString()
+  });
+  
+  // Keep only the 20 most recent queue items to prevent file bloat
+  if (queue.length > 20) queue = queue.slice(0, 20);
+  
+  fs.writeFileSync(QUEUE_FILE, JSON.stringify(queue, null, 2));
+  console.log("\n✅ Saved generated copy to social-queue.json!");
+  
+  // Mark as shared in database so it doesn't process it again tomorrow
+  posts[unsharedPostIndex].socialShared = true;
+  fs.writeFileSync(POSTS_FILE, JSON.stringify(posts, null, 2));
+  console.log(`💾 Marked article as socialShared in posts.json`);
 }
 
 runSocialAgent();

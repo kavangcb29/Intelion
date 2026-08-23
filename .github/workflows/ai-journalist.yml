@@ -61,6 +61,7 @@ jobs:
           
           git add src/data/posts.json
           git add public/sitemap.xml
+          git add src/data/social-queue.json
           
           # Only commit if there are actually changes to avoid failing the action
           if git diff --staged --quiet; then
