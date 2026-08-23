@@ -8,29 +8,21 @@ export default function AdBlockDetector() {
     // Only run on client, and only check once per session
     if (sessionStorage.getItem('adblock_popup_seen')) return;
 
-    const checkAdBlocker = () => {
-      // Create a bait element that ad blockers aggressively target
-      const bait = document.createElement('div');
-      bait.className = 'adsbox ad-placement doubleclick ad-placeholder';
-      bait.style.position = 'absolute';
-      bait.style.top = '-999px';
-      bait.style.left = '-999px';
-      bait.style.height = '1px';
-      bait.style.width = '1px';
-      document.body.appendChild(bait);
-
-      // Wait a tiny bit for the blocker to act
-      setTimeout(() => {
-        const isBlocked = bait.offsetHeight === 0 || bait.display === 'none' || window.getComputedStyle(bait).display === 'none';
-        bait.remove();
-
-        if (isBlocked) {
-          // If blocked, wait 5 seconds then show the popup
-          setTimeout(() => {
-            setShowPopup(true);
-          }, 5000);
-        }
-      }, 100);
+    const checkAdBlocker = async () => {
+      try {
+        // We try to fetch a known ad script. Ad blockers will intercept and block this network request.
+        await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+          method: 'HEAD',
+          mode: 'no-cors',
+          cache: 'no-store',
+        });
+        // If it gets here without throwing, there is no network-level ad blocker.
+      } catch (error) {
+        // The fetch threw an error, meaning an ad blocker intercepted the request!
+        setTimeout(() => {
+          setShowPopup(true);
+        }, 5000);
+      }
     };
 
     // Check when window fully loads
