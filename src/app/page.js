@@ -47,10 +47,10 @@ export default async function Home() {
               <div style={{
                 height: '160px',
                 width: '100%',
-                backgroundImage: 'url(/images/hero-abstract.png)',
+                backgroundImage: post.imageUrl ? `url(${post.imageUrl})` : 'url(/images/hero-abstract.png)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                filter: `hue-rotate(${idx * 75}deg) saturate(1.5)`
+                filter: post.imageUrl ? 'none' : `hue-rotate(${idx * 75}deg) saturate(1.5)`
               }}></div>
               <div style={{ padding: "var(--spacing-md)", display: "flex", flexDirection: "column", flex: 1 }}>
                 <h3 style={{ fontSize: "1.125rem", marginBottom: "var(--spacing-sm)" }}>{post.title}</h3>

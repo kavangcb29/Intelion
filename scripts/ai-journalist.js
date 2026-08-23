@@ -109,12 +109,23 @@ async function runJournalist() {
       
       let htmlContent = articleResponse.text.replace(/```html/g, '').replace(/```/g, '').trim();
 
+      // Generate a highly specific image prompt for this article
+      const imagePromptResponse = await ai.models.generateContent({
+        model: 'gemini-3.6-flash',
+        contents: `Write a short, highly descriptive, photorealistic image prompt for an article titled: "${topic.seo_optimized_title}". Do not include any text in the image. Make it highly cinematic and tech-focused. Output ONLY the raw prompt string.`,
+      });
+      const imagePrompt = imagePromptResponse.text.trim();
+      
+      // Use free, no-key Pollinations AI for image generation
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=800&height=400&nologo=true`;
+
       newArticles.push({
         title: topic.seo_optimized_title,
         content: htmlContent,
         published: currentDate,
         slug: topic.slug,
-        type: "POST"
+        type: "POST",
+        imageUrl: imageUrl
       });
     } catch (err) {
       console.error(`❌ Failed to write article ${i+1}:`, err);

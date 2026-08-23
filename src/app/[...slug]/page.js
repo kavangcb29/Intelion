@@ -59,10 +59,10 @@ export default async function PostPage({ params }) {
           width: '100%',
           height: '300px',
           borderRadius: 'var(--radius-lg)',
-          backgroundImage: 'url(/images/hero-abstract.png)',
+          backgroundImage: post.imageUrl ? `url(${post.imageUrl})` : 'url(/images/hero-abstract.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          filter: `hue-rotate(${hueRotateAmount}deg) saturate(1.5)`,
+          filter: post.imageUrl ? 'none' : `hue-rotate(${hueRotateAmount}deg) saturate(1.5)`,
           marginBottom: 'var(--spacing-lg)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
         }}></div>

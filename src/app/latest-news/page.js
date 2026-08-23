@@ -34,10 +34,10 @@ export default function LatestNews() {
               <div style={{
                 height: '160px',
                 width: '100%',
-                backgroundImage: 'url(/images/hero-abstract.png)',
+                backgroundImage: news.imageUrl ? `url(${news.imageUrl})` : 'url(/images/hero-abstract.png)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                filter: `hue-rotate(${idx * 45}deg) saturate(1.5)`
+                filter: news.imageUrl ? 'none' : `hue-rotate(${idx * 45}deg) saturate(1.5)`
               }}></div>
               <div style={{ padding: "var(--spacing-md)", display: "flex", flexDirection: "column", flex: 1 }}>
                 <h3 style={{ fontSize: "1.125rem", marginBottom: "var(--spacing-sm)" }}>{news.title}</h3>
