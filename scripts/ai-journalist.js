@@ -1,0 +1,143 @@
+const fs = require('fs');
+const path = require('path');
+const Parser = require('rss-parser');
+const { GoogleGenAI } = require('@google/genai');
+
+const parser = new Parser();
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+async function runJournalist() {
+  console.log("🚀 Booting Autonomous AI Journalist...");
+
+  if (!process.env.GEMINI_API_KEY) {
+    console.error("❌ CRITICAL ERROR: GEMINI_API_KEY environment variable is missing.");
+    process.exit(1);
+  }
+
+  // 1. Research Phase: Fetch Top Global Tech News
+  console.log("📰 Fetching global tech news from TechCrunch & Techmeme...");
+  let rawNews = [];
+  try {
+    const feeds = [
+      'https://www.techmeme.com/feed.xml',
+      'https://techcrunch.com/feed/'
+    ];
+    
+    for (const url of feeds) {
+      const feed = await parser.parseURL(url);
+      rawNews.push(...feed.items.slice(0, 10)); // Take top 10 from each
+    }
+  } catch (err) {
+    console.error("Failed to fetch RSS:", err);
+    process.exit(1);
+  }
+
+  const headlinesText = rawNews.map((item, idx) => `[${idx}] TITLE: ${item.title} | SNIPPET: ${item.contentSnippet?.substring(0, 200)}`).join('\n');
+
+  // 2. SEO Evaluation Phase: Select Top 5
+  console.log("🧠 Evaluating topics for maximum SEO potential...");
+  const seoPrompt = `
+    You are an elite SEO strategist and Tech Editor. 
+    Here are the latest global tech headlines:
+    ${headlinesText}
+
+    Task:
+    1. Filter out boring or localized news. Focus strictly on: AI, ML, Cyber Security, Cloud Computing, Quantum Computing, and massive global tech breakthroughs.
+    2. Run an SEO check in your head. Which of these topics have the highest search volume potential and click-through rate?
+    3. Select exactly the TOP 5 most SEO-friendly topics from the list. Discard the rest.
+    
+    Output exactly a JSON array of the 5 chosen topics with the following structure:
+    [
+      { "original_index": number, "seo_optimized_title": "A highly clickable, SEO-friendly title", "slug": "seo-friendly-url-slug-string", "topic_summary": "brief summary of what to write" }
+    ]
+    Do not output any markdown formatting, only the raw JSON array.
+  `;
+
+  let selectedTopics = [];
+  try {
+    const seoResponse = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: seoPrompt,
+      config: {
+        temperature: 0.3
+      }
+    });
+    let rawText = seoResponse.text.replace(/```json/g, '').replace(/```/g, '').trim();
+    selectedTopics = JSON.parse(rawText);
+  } catch (err) {
+    console.error("❌ SEO Selection failed:", err);
+    process.exit(1);
+  }
+
+  console.log(`✅ Selected Top 5 Topics: ${selectedTopics.map(t => t.seo_optimized_title).join(', ')}`);
+
+  // 3. Writing Phase: Generate Articles
+  const newArticles = [];
+  const currentDate = new Date().toISOString();
+
+  for (let i = 0; i < selectedTopics.length; i++) {
+    const topic = selectedTopics[i];
+    console.log(`✍️ Writing article ${i + 1}/5: ${topic.seo_optimized_title}...`);
+    
+    const writerPrompt = `
+      You are an expert, award-winning technology journalist writing for a premium publication called "Int3lion".
+      
+      Topic: ${topic.topic_summary}
+      Title: ${topic.seo_optimized_title}
+      
+      Task: Write a comprehensive, highly engaging, and SEO-optimized long-form article (at least 600 words) about this topic.
+      
+      Formatting Requirements:
+      - The output MUST be raw HTML. Do NOT include <html>, <head>, or <body> tags. Just the HTML content.
+      - Do NOT wrap the output in markdown \`\`\`html blocks.
+      - Use <p> for paragraphs.
+      - Use <h2> for subheadings (make them catchy and SEO friendly).
+      - Use <strong> for emphasis on key tech terms.
+      - Use <ul> and <li> for lists if applicable.
+      - Write in a highly authoritative, engaging, and modern tone.
+    `;
+
+    try {
+      const articleResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-pro',
+        contents: writerPrompt,
+        config: {
+          temperature: 0.7
+        }
+      });
+      
+      let htmlContent = articleResponse.text.replace(/```html/g, '').replace(/```/g, '').trim();
+
+      newArticles.push({
+        title: topic.seo_optimized_title,
+        content: htmlContent,
+        published: currentDate,
+        slug: topic.slug,
+        type: "POST"
+      });
+    } catch (err) {
+      console.error(`❌ Failed to write article ${i+1}:`, err);
+    }
+  }
+
+  if (newArticles.length === 0) {
+    console.error("❌ No articles generated. Exiting.");
+    process.exit(1);
+  }
+
+  // 4. Database Update Phase
+  console.log("💾 Saving articles to database...");
+  const dbPath = path.join(__dirname, '../src/data/posts.json');
+  let currentPosts = [];
+  if (fs.existsSync(dbPath)) {
+    currentPosts = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+  }
+
+  // Prepend new articles to the top of the feed
+  const updatedPosts = [...newArticles, ...currentPosts];
+  
+  fs.writeFileSync(dbPath, JSON.stringify(updatedPosts, null, 2));
+  console.log(`🎉 SUCCESS! ${newArticles.length} new articles published.`);
+}
+
+runJournalist();
