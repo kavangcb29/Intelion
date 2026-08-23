@@ -1,3 +1,4 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const Parser = require('rss-parser');
@@ -34,7 +35,7 @@ async function runJournalist() {
 
   const headlinesText = rawNews.map((item, idx) => `[${idx}] TITLE: ${item.title} | SNIPPET: ${item.contentSnippet?.substring(0, 200)}`).join('\n');
 
-  // 2. SEO Evaluation Phase: Select Top 5
+  // 2. SEO Evaluation Phase: Select Top 10
   console.log("🧠 Evaluating topics for maximum SEO potential...");
   const seoPrompt = `
     You are an elite SEO strategist and Tech Editor. 
@@ -44,9 +45,9 @@ async function runJournalist() {
     Task:
     1. Filter out boring or localized news. Focus strictly on: AI, ML, Cyber Security, Cloud Computing, Quantum Computing, and massive global tech breakthroughs.
     2. Run an SEO check in your head. Which of these topics have the highest search volume potential and click-through rate?
-    3. Select exactly the TOP 5 most SEO-friendly topics from the list. Discard the rest.
+    3. Select exactly the TOP 10 most SEO-friendly topics from the list. Discard the rest.
     
-    Output exactly a JSON array of the 5 chosen topics with the following structure:
+    Output exactly a JSON array of the 10 chosen topics with the following structure:
     [
       { "original_index": number, "seo_optimized_title": "A highly clickable, SEO-friendly title", "slug": "seo-friendly-url-slug-string", "topic_summary": "brief summary of what to write" }
     ]
@@ -69,7 +70,7 @@ async function runJournalist() {
     process.exit(1);
   }
 
-  console.log(`✅ Selected Top 5 Topics: ${selectedTopics.map(t => t.seo_optimized_title).join(', ')}`);
+  console.log(`✅ Selected Top 10 Topics: ${selectedTopics.map(t => t.seo_optimized_title).join(', ')}`);
 
   // 3. Writing Phase: Generate Articles
   const newArticles = [];
@@ -77,7 +78,7 @@ async function runJournalist() {
 
   for (let i = 0; i < selectedTopics.length; i++) {
     const topic = selectedTopics[i];
-    console.log(`✍️ Writing article ${i + 1}/5: ${topic.seo_optimized_title}...`);
+    console.log(`✍️ Writing article ${i + 1}/10: ${topic.seo_optimized_title}...`);
     
     const writerPrompt = `
       You are an expert, award-winning technology journalist writing for a premium publication called "Int3lion".
