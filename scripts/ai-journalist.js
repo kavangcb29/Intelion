@@ -75,6 +75,8 @@ async function runJournalist() {
   // 3. Writing Phase: Generate Articles
   const newArticles = [];
   const currentDate = new Date().toISOString();
+  
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
   for (let i = 0; i < selectedTopics.length; i++) {
     const topic = selectedTopics[i];
@@ -127,6 +129,12 @@ async function runJournalist() {
         type: "POST",
         imageUrl: imageUrl
       });
+
+      // Wait 5 seconds to bypass free-tier rate limits (15 RPM)
+      if (i < selectedTopics.length - 1) {
+        console.log("⏳ Pausing for 5 seconds to respect API rate limits...");
+        await delay(5000);
+      }
     } catch (err) {
       console.error(`❌ Failed to write article ${i+1}:`, err);
     }
