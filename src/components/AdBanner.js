@@ -1,35 +1,37 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdBanner({ isSticky }) {
-  const bannerRef = useRef(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Prevent multiple injections in strict mode
-    if (bannerRef.current && bannerRef.current.innerHTML !== '') return;
-    
-    if (bannerRef.current) {
-      // ADSTERRA CONFIGURATION
-      const atOptions = {
-        'key' : 'dfdf7d00015faafd2d88c298792dd982', 
-        'format' : 'iframe',
-        'height' : isSticky ? 50 : 90,
-        'width' : isSticky ? 320 : 728,
-        'params' : {}
-      };
+    setIsMounted(true);
+  }, []);
 
-      const script1 = document.createElement('script');
-      script1.type = 'text/javascript';
-      script1.innerHTML = `var atOptions = ${JSON.stringify(atOptions)};`;
-      
-      const script2 = document.createElement('script');
-      script2.type = 'text/javascript';
-      script2.src = `//www.highrevenueformat.com/${atOptions.key}/invoke.js`;
+  const adWidth = isSticky ? 320 : 728;
+  const adHeight = isSticky ? 50 : 90;
 
-      bannerRef.current.appendChild(script1);
-      bannerRef.current.appendChild(script2);
-    }
-  }, [isSticky]);
+  // The raw HTML snippet provided by Adsterra
+  const adHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; }</style>
+      </head>
+      <body>
+        <script type="text/javascript">
+          var atOptions = {
+            'key' : 'dfdf7d00015faafd2d88c298792dd982',
+            'format' : 'iframe',
+            'height' : ${adHeight},
+            'width' : ${adWidth},
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://www.highrevenueformat.com/dfdf7d00015faafd2d88c298792dd982/invoke.js"></script>
+      </body>
+    </html>
+  `;
 
   return (
     <div 
@@ -39,7 +41,7 @@ export default function AdBanner({ isSticky }) {
         overflow: 'hidden', 
         textAlign: 'center', 
         margin: isSticky ? '0' : 'var(--spacing-md) 0',
-        minHeight: isSticky ? '50px' : '100px', // Prevents CLS Layout Shift
+        minHeight: isSticky ? '50px' : '100px', 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -53,7 +55,23 @@ export default function AdBanner({ isSticky }) {
         zIndex: isSticky ? 99 : 1
       }}
     >
-      <div ref={bannerRef} className="adsterra-container" style={{ display: "flex", justifyContent: "center" }}></div>
+      {isMounted && (
+        <iframe
+          title="Adsterra Banner"
+          srcDoc={adHtml}
+          width={adWidth}
+          height={adHeight}
+          frameBorder="0"
+          scrolling="no"
+          style={{ 
+            border: 'none', 
+            overflow: 'hidden', 
+            width: `${adWidth}px`, 
+            height: `${adHeight}px`,
+            display: 'block'
+          }}
+        />
+      )}
     </div>
   );
 }
