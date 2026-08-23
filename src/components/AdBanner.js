@@ -1,28 +1,36 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function AdBanner({ isSticky }) {
-  const [adBlocked, setAdBlocked] = useState(false);
+  const bannerRef = useRef(null);
 
   useEffect(() => {
-    try {
-      if (typeof window !== "undefined") {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      }
-    } catch (error) {
-      console.error("AdSense error:", error);
-      setAdBlocked(true);
-    }
+    // Prevent multiple injections in strict mode
+    if (bannerRef.current && bannerRef.current.innerHTML !== '') return;
     
-    // Check if AdBlocker is active by seeing if adsbygoogle script was blocked
-    setTimeout(() => {
-      if (!window.adsbygoogle || !window.adsbygoogle.loaded) {
-        setAdBlocked(true);
-      }
-    }, 2000);
-  }, []);
+    if (bannerRef.current) {
+      // ADSTERRA CONFIGURATION
+      // Update these values when you get your specific Adsterra Ad Unit
+      const atOptions = {
+        'key' : 'YOUR_ADSTERRA_KEY_HERE', 
+        'format' : 'iframe',
+        'height' : isSticky ? 50 : 90,
+        'width' : isSticky ? 320 : 728,
+        'params' : {}
+      };
 
-  if (adBlocked) return null;
+      const script1 = document.createElement('script');
+      script1.type = 'text/javascript';
+      script1.innerHTML = `var atOptions = ${JSON.stringify(atOptions)};`;
+      
+      const script2 = document.createElement('script');
+      script2.type = 'text/javascript';
+      script2.src = `//www.highperformanceformat.com/${atOptions.key}/invoke.js`;
+
+      bannerRef.current.appendChild(script1);
+      bannerRef.current.appendChild(script2);
+    }
+  }, [isSticky]);
 
   return (
     <div 
@@ -32,7 +40,7 @@ export default function AdBanner({ isSticky }) {
         overflow: 'hidden', 
         textAlign: 'center', 
         margin: isSticky ? '0' : 'var(--spacing-md) 0',
-        minHeight: '100px', // Prevents CLS Layout Shift
+        minHeight: isSticky ? '50px' : '100px', // Prevents CLS Layout Shift
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -46,14 +54,7 @@ export default function AdBanner({ isSticky }) {
         zIndex: isSticky ? 99 : 1
       }}
     >
-      <ins
-        className="adsbygoogle"
-        style={{ display: "inline-block", minWidth: "300px", minHeight: "90px" }}
-        data-ad-client="ca-pub-3571863616373313"
-        data-ad-slot="ENTER_YOUR_AD_SLOT_ID_HERE"
-        data-ad-format={isSticky ? "horizontal" : "auto"}
-        data-full-width-responsive="true"
-      ></ins>
+      <div ref={bannerRef} className="adsterra-container" style={{ display: "flex", justifyContent: "center" }}></div>
     </div>
   );
 }

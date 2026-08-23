@@ -82,6 +82,8 @@ async function runJournalist() {
     const topic = selectedTopics[i];
     console.log(`✍️ Writing article ${i + 1}/10: ${topic.seo_optimized_title}...`);
     
+    const amazonTag = process.env.AMAZON_AFFILIATE_TAG || 'intelion-20';
+
     const writerPrompt = `
       You are an expert, award-winning technology journalist writing for a premium publication called "Int3lion".
       
@@ -98,6 +100,9 @@ async function runJournalist() {
       - Use <strong> for emphasis on key tech terms.
       - Use <ul> and <li> for lists if applicable.
       - Write in a highly authoritative, engaging, and modern tone.
+      - MONETIZATION (AMAZON ASSOCIATES): If an article is about consumer hardware, electronics, or tech products, you MUST seamlessly weave in a highly-converting call-to-action to check the price on Amazon.
+        - Use this exact link format: <a href="https://www.amazon.com/s?k=[URL_ENCODED_PRODUCT_NAME]&tag=${amazonTag}" target="_blank" rel="noopener noreferrer" style="color: var(--accent); font-weight: bold; text-decoration: underline;">Check the latest price on Amazon</a>
+        - Place this naturally near the end of the article or after discussing the product's specs.
     `;
 
     try {
