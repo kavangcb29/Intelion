@@ -36,16 +36,17 @@ async function runJournalist() {
   const headlinesText = rawNews.map((item, idx) => `[${idx}] TITLE: ${item.title} | SNIPPET: ${item.contentSnippet?.substring(0, 200)}`).join('\n');
 
   // 2. SEO Evaluation Phase: Select Top 10
-  console.log("🧠 Evaluating topics for maximum SEO potential...");
+  console.log("🧠 Evaluating topics for maximum SEO and Affiliate potential...");
   const seoPrompt = `
-    You are an elite SEO strategist and Tech Editor. 
+    You are an expert SEO Strategist and Affiliate Marketer. 
     Here are the latest global tech headlines:
     ${headlinesText}
 
     Task:
-    1. Filter out boring or localized news. Focus strictly on: AI, ML, Cyber Security, Cloud Computing, Quantum Computing, and massive global tech breakthroughs.
-    2. Run an SEO check in your head. Which of these topics have the highest search volume potential and click-through rate?
-    3. Select exactly the TOP 10 most SEO-friendly topics from the list. Discard the rest.
+    1. Select exactly 10 topics that have the HIGHEST combined potential for:
+       - Search Engine Optimization (SEO) traffic.
+       - Affiliate Marketing Conversions (prioritizing consumer hardware, gadgets, laptops, smartphones, GPUs, or electronics that can be purchased on Amazon).
+    2. Focus on AI, ML, Cyber Security, and especially tangible consumer tech products.
     
     Output exactly a JSON array of the 10 chosen topics with the following structure:
     [
