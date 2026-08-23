@@ -82,7 +82,7 @@ async function runJournalist() {
     const topic = selectedTopics[i];
     console.log(`✍️ Writing article ${i + 1}/10: ${topic.seo_optimized_title}...`);
     
-    const amazonTag = process.env.AMAZON_AFFILIATE_TAG || 'intelion-20';
+    const amazonTag = process.env.AMAZON_AFFILIATE_TAG || 'kavansudev-21';
 
     const writerPrompt = `
       You are an expert, award-winning technology journalist writing for a premium publication called "Int3lion".
