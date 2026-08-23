@@ -45,6 +45,7 @@ import Footer from "@/components/Footer";
 import Script from "next/script";
 import AdBanner from "@/components/AdBanner";
 import CookieBanner from "@/components/CookieBanner";
+import AdBlockDetector from "@/components/AdBlockDetector";
 
 export default function RootLayout({ children }) {
   return (
@@ -58,6 +59,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={inter.className}>
+        <AdBlockDetector />
         <Header />
         <main className="main-content animate-enter">
           {children}
