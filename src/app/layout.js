@@ -43,6 +43,8 @@ export const metadata = {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Script from "next/script";
+import AdBanner from "@/components/AdBanner";
+import CookieBanner from "@/components/CookieBanner";
 
 export default function RootLayout({ children }) {
   return (
@@ -61,6 +63,11 @@ export default function RootLayout({ children }) {
           {children}
         </main>
         <Footer />
+        
+        {/* Global sticky ad at the bottom of the viewport */}
+        <AdBanner isSticky={true} />
+        {/* GDPR/CCPA Compliance Banner */}
+        <CookieBanner />
       </body>
     </html>
   );

@@ -38,6 +38,16 @@ export default async function PostPage({ params }) {
 
   const hueRotateAmount = (post.title.length * 15) % 360;
 
+  // Split content to inject AdBanner after the 3rd paragraph
+  const contentParts = post.content.split('</p>');
+  let firstHalf = post.content;
+  let secondHalf = '';
+
+  if (contentParts.length > 3) {
+    firstHalf = contentParts.slice(0, 3).join('</p>') + '</p>';
+    secondHalf = contentParts.slice(3).join('</p>');
+  }
+
   return (
     <article className="container" style={{ maxWidth: '800px', padding: 'var(--spacing-xl) var(--spacing-lg)' }}>
       <header style={{ marginBottom: 'var(--spacing-xl)', textAlign: 'center' }}>
@@ -67,8 +77,19 @@ export default async function PostPage({ params }) {
       <div 
         className="post-content" 
         style={{ marginTop: 'var(--spacing-lg)', lineHeight: '1.8', fontSize: '1.125rem' }}
-        dangerouslySetInnerHTML={{ __html: post.content }} 
-      />
+      >
+        <div dangerouslySetInnerHTML={{ __html: firstHalf }} />
+        
+        {/* In-Article High Converting Ad */}
+        {secondHalf && (
+          <div style={{ margin: 'var(--spacing-xl) 0' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Advertisement</div>
+            <AdBanner />
+          </div>
+        )}
+
+        {secondHalf && <div dangerouslySetInnerHTML={{ __html: secondHalf }} />}
+      </div>
 
       <div style={{ marginTop: 'var(--spacing-xl)' }}>
         <AdBanner />
