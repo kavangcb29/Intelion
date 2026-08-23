@@ -10,7 +10,7 @@ export default function Header() {
         <nav className="nav-links">
           <Link href="/">Home</Link>
           <Link href="/latest-news">Latest News</Link>
-          <Link href="/p/about.html">About</Link>
+          <Link href="/about">About</Link>
         </nav>
       </div>
     </header>
