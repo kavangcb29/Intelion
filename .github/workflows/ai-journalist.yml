@@ -2,8 +2,8 @@ name: Autonomous AI Journalist (Daily)
 
 on:
   schedule:
-    # Runs every day at 06:00 UTC
-    - cron: '0 6 * * *'
+    # Runs at 23:30 UTC every day, which is exactly 5:00 AM IST (Indian Standard Time)
+    - cron: '30 23 * * *'
   # Allows you to trigger the workflow manually from the Actions tab
   workflow_dispatch:
 
