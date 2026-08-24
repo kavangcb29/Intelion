@@ -2,8 +2,9 @@ name: Autonomous AI Journalist (Daily)
 
 on:
   schedule:
-    # Runs at 23:30 UTC every day, which is exactly 5:00 AM IST (Indian Standard Time)
-    - cron: '30 23 * * *'
+    # Runs at 07:15 UTC every day, which is exactly 12:45 PM IST (Indian Standard Time)
+    # This ensures it runs immediately AFTER Google Gemini's daily quota resets!
+    - cron: '15 7 * * *'
   # Allows you to trigger the workflow manually from the Actions tab
   workflow_dispatch:
 

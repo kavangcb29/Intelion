@@ -35,7 +35,7 @@ async function runJournalist() {
 
   const headlinesText = rawNews.map((item, idx) => `[${idx}] TITLE: ${item.title} | SNIPPET: ${item.contentSnippet?.substring(0, 200)}`).join('\n');
 
-  // 2. SEO Evaluation Phase: Select Top 10
+  // 2. SEO Evaluation Phase: Select Top 5
   console.log("🧠 Evaluating topics for maximum SEO and Affiliate potential...");
   const seoPrompt = `
     You are an expert SEO Strategist and Affiliate Marketer. 
@@ -43,12 +43,12 @@ async function runJournalist() {
     ${headlinesText}
 
     Task:
-    1. Select exactly 10 topics that have the HIGHEST combined potential for:
+    1. Select exactly 5 topics that have the HIGHEST combined potential for:
        - Organic Search Traffic (Prioritize long-tail keywords, viral tech questions, and low-competition/high-volume search queries that drive natural flow from Google).
        - Affiliate Marketing Conversions (prioritizing consumer hardware, gadgets, laptops, smartphones, GPUs, or electronics that can be purchased on Amazon).
     2. Focus on AI, ML, Cyber Security, and especially tangible consumer tech products that people are actively searching for reviews or tutorials on.
     
-    Output exactly a JSON array of the 10 chosen topics with the following structure:
+    Output exactly a JSON array of the 5 chosen topics with the following structure:
     [
       { "original_index": number, "seo_optimized_title": "A highly clickable, SEO-friendly title", "slug": "seo-friendly-url-slug-string", "topic_summary": "brief summary of what to write" }
     ]
@@ -81,7 +81,7 @@ async function runJournalist() {
 
   for (let i = 0; i < selectedTopics.length; i++) {
     const topic = selectedTopics[i];
-    console.log(`✍️ Writing article ${i + 1}/10: ${topic.seo_optimized_title}...`);
+    console.log(`✍️ Writing article ${i + 1}/5: ${topic.seo_optimized_title}...`);
     
     const amazonTag = process.env.AMAZON_AFFILIATE_TAG || 'kavansudev-21';
 
