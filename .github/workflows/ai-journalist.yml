@@ -1,6 +1,9 @@
 name: Autonomous AI Journalist (Daily)
 
 on:
+  push:
+    branches:
+      - master
   schedule:
     # Runs at 07:15 UTC every day, which is exactly 12:45 PM IST (Indian Standard Time)
     # This ensures it runs immediately AFTER Google Gemini's daily quota resets!
