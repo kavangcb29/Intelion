@@ -52,12 +52,22 @@ export default async function PostPage({ params }) {
     secondHalf = contentParts.slice(3).join('</p>');
   }
 
+  // Calculate Read Time
+  const wordCount = post.content.split(/\s+/).length;
+  const readTime = Math.max(1, Math.ceil(wordCount / 200));
+
+  // Get 3 random related articles
+  const relatedArticles = allPosts
+    .filter(p => p.slug !== post.slug)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3);
+
   return (
     <article className="container" style={{ maxWidth: '800px', padding: 'var(--spacing-xl) var(--spacing-lg)' }}>
       <header style={{ marginBottom: 'var(--spacing-xl)', textAlign: 'center' }}>
         <div style={{
           width: '100%',
-          height: '300px',
+          height: '350px',
           borderRadius: 'var(--radius-lg)',
           backgroundImage: post.imageUrl ? `url(${post.imageUrl})` : 'url(/images/hero-abstract.png)',
           backgroundSize: 'cover',
@@ -66,21 +76,28 @@ export default async function PostPage({ params }) {
           marginBottom: 'var(--spacing-lg)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
         }}></div>
-        <h1 style={{ marginBottom: 'var(--spacing-md)' }}>{post.title}</h1>
-        <p style={{ color: 'var(--text-muted)' }}>
-          {new Date(post.published).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
-        </p>
+        <h1 style={{ marginBottom: 'var(--spacing-md)', fontSize: 'clamp(2.2rem, 5vw, 3.5rem)' }}>{post.title}</h1>
+        <div style={{ color: 'var(--text-muted)', display: 'flex', justifyContent: 'center', gap: '16px', alignItems: 'center' }}>
+          <span>
+            {new Date(post.published).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </span>
+          <span>•</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            {readTime} min read
+          </span>
+        </div>
       </header>
 
       <AdBanner />
 
       <div 
         className="post-content" 
-        style={{ marginTop: 'var(--spacing-lg)', lineHeight: '1.8', fontSize: '1.125rem' }}
+        style={{ marginTop: 'var(--spacing-lg)', lineHeight: '1.9', fontSize: '1.25rem' }}
       >
         <div dangerouslySetInnerHTML={{ __html: firstHalf }} />
         
@@ -111,6 +128,31 @@ export default async function PostPage({ params }) {
       <div style={{ marginTop: 'var(--spacing-xl)' }}>
         <AdBanner />
       </div>
+
+      {/* Related Articles Section */}
+      {relatedArticles.length > 0 && (
+        <div style={{ marginTop: '4rem', paddingTop: '3rem', borderTop: '1px solid var(--glass-border)' }}>
+          <h3 style={{ fontSize: '1.8rem', marginBottom: 'var(--spacing-lg)' }}>More from Int3lion</h3>
+          <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
+            {relatedArticles.map(related => (
+              <a href={related.slug} key={related.slug} className="premium-card" style={{ padding: 'var(--spacing-md)' }}>
+                <div 
+                  style={{ 
+                    height: '140px', 
+                    borderRadius: 'var(--radius-md)',
+                    marginBottom: 'var(--spacing-md)',
+                    backgroundImage: related.imageUrl ? `url(${related.imageUrl})` : 'url(/images/hero-abstract.png)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    filter: related.imageUrl ? 'none' : `hue-rotate(${(related.title.length * 15) % 360}deg) saturate(1.2)`
+                  }}
+                />
+                <h4 style={{ fontSize: '1.1rem', marginBottom: '8px', lineHeight: '1.4' }}>{related.title}</h4>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </article>
   );
 }

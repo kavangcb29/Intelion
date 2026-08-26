@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import SearchBar from './SearchBar';
 
 export default function Header() {
   return (
@@ -7,11 +8,14 @@ export default function Header() {
         <Link href="/" className="logo">
           Int3lion<span style={{ color: 'var(--accent)' }}>.</span>
         </Link>
-        <nav className="nav-links">
-          <Link href="/">Home</Link>
-          <Link href="/latest-news">Latest News</Link>
-          <Link href="/about">About</Link>
-        </nav>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-xl)' }}>
+          <nav className="nav-links">
+            <Link href="/">Home</Link>
+            <Link href="/latest-news">Latest News</Link>
+            <Link href="/about">About</Link>
+          </nav>
+          <SearchBar />
+        </div>
       </div>
     </header>
   );
