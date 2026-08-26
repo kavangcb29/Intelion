@@ -46,9 +46,11 @@ async function runJournalist() {
 
     Task:
     1. Select exactly 5 topics that have the HIGHEST combined potential for:
-       - Organic Search Traffic (Prioritize long-tail keywords, viral tech questions, and low-competition/high-volume search queries that drive natural flow from Google).
-       - Affiliate Marketing Conversions (prioritizing consumer hardware, gadgets, laptops, smartphones, GPUs, or electronics that can be purchased on Amazon).
-    2. Focus on AI, ML, Cyber Security, and especially tangible consumer tech products that people are actively searching for reviews or tutorials on.
+       - Organic Search Traffic (Prioritize long-tail keywords, viral tech questions, and low-competition/high-volume search queries).
+       - Affiliate Marketing Conversions (prioritizing consumer hardware, gadgets, laptops, smartphones, GPUs, or electronics).
+    2. STRICT TIMELINE RULE: ONLY select topics about hardware/software that is PRE-RELEASE (leaks, rumors, upcoming within 1-2 months) or was JUST RELEASED (within the last 1-2 months).
+       - Pre-release articles and leak roundups are highly preferred as they gain massive traction.
+    3. Focus on AI, ML, Cyber Security, and cutting-edge consumer tech.
     
     Output exactly a JSON array of the 5 chosen topics with the following structure:
     [
@@ -91,6 +93,7 @@ async function runJournalist() {
       You are an expert, award-winning technology journalist writing for a premium publication called "Int3lion".
       The current date is ${currentDateString}. It is the year 2026. 
       CRITICAL INSTRUCTION: Do NOT write about older generations of hardware as if they are brand new. Always assume the context is for the latest cutting-edge tech of 2026.
+      FOCUS: Frame the article around upcoming, pre-release hype (leaks, expected specs, rumors) if the product is coming out soon, or as a cutting-edge review if it was released within the last 1-2 months. Build immense excitement for what's next.
       
       Topic: ${topic.topic_summary}
       Title: ${topic.seo_optimized_title}
