@@ -37,9 +37,11 @@ async function runJournalist() {
 
   // 2. SEO Evaluation Phase: Select Top 5
   console.log("🧠 Evaluating topics for maximum SEO and Affiliate potential...");
+  const currentDateString = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const seoPrompt = `
     You are an expert SEO Strategist and Affiliate Marketer. 
-    Here are the latest global tech headlines:
+    The current date is ${currentDateString}. It is the year 2026.
+    Here are the latest global tech headlines pulled today:
     ${headlinesText}
 
     Task:
@@ -87,6 +89,8 @@ async function runJournalist() {
 
     const writerPrompt = `
       You are an expert, award-winning technology journalist writing for a premium publication called "Int3lion".
+      The current date is ${currentDateString}. It is the year 2026. 
+      CRITICAL INSTRUCTION: Do NOT write about older generations of hardware as if they are brand new. Always assume the context is for the latest cutting-edge tech of 2026.
       
       Topic: ${topic.topic_summary}
       Title: ${topic.seo_optimized_title}
