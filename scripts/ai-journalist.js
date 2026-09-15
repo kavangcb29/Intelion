@@ -7,6 +7,28 @@ const { GoogleGenAI } = require('@google/genai');
 const parser = new Parser();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function generateWithRetry(modelArgs, maxRetries = 5) {
+  let retries = 0;
+  while (retries < maxRetries) {
+    try {
+      return await ai.models.generateContent(modelArgs);
+    } catch (err) {
+      const status = err?.status || err?.response?.status;
+      if (status === 429 || status === 503 || status === 500) {
+        retries++;
+        const waitTime = Math.min(10000 * Math.pow(2, retries - 1), 60000);
+        console.log(`⚠️ Gemini API error (${status}). Retrying in ${waitTime/1000}s... (Attempt ${retries}/${maxRetries})`);
+        await delay(waitTime);
+      } else {
+        throw err;
+      }
+    }
+  }
+  throw new Error(`Failed to generate content after ${maxRetries} retries.`);
+}
+
 async function runJournalist() {
   console.log("🚀 Booting Autonomous AI Journalist...");
 
@@ -61,7 +83,7 @@ async function runJournalist() {
 
   let selectedTopics = [];
   try {
-    const seoResponse = await ai.models.generateContent({
+    const seoResponse = await generateWithRetry({
       model: 'gemini-3.6-flash',
       contents: seoPrompt,
       config: {
@@ -81,7 +103,7 @@ async function runJournalist() {
   const newArticles = [];
   const currentDate = new Date().toISOString();
   
-  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  const POSTS_FILE = path.join(__dirname, '../src/data/posts.json');
 
   for (let i = 0; i < selectedTopics.length; i++) {
     const topic = selectedTopics[i];
@@ -114,7 +136,7 @@ async function runJournalist() {
     `;
 
     try {
-      const articleResponse = await ai.models.generateContent({
+      const articleResponse = await generateWithRetry({
         model: 'gemini-3.6-flash',
         contents: writerPrompt,
         config: {
