@@ -82,9 +82,10 @@ async function runImageAgent() {
             await delay(10000);
 
           } catch (err) {
-            if (err.status === 429) {
-              console.log("   ⏳ Rate limit hit! Waiting 60 seconds before retrying...");
-              await delay(60000);
+            const status = err?.status || err?.response?.status;
+            if (status === 429 || status === 503 || status === 500) {
+              console.log(`   ⏳ Gemini API error (${status}). Waiting 20 seconds before retrying...`);
+              await delay(20000);
               retries++;
             } else {
               console.error("   ❌ Error searching for image, reverting to unique fallback:", err);
