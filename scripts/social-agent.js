@@ -1,3 +1,4 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const { GoogleGenAI } = require('@google/genai');
@@ -8,6 +9,44 @@ const BASE_URL = 'https://intelion.onrender.com';
 
 // Initialize API
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function generateWithRetry(modelArgs, maxRetries = 5) {
+  let retries = 0;
+  while (retries < maxRetries) {
+    try {
+      return await ai.models.generateContent(modelArgs);
+    } catch (err) {
+      const status = err?.status || err?.response?.status;
+      if (status === 429 || status === 503 || status === 500) {
+        retries++;
+        const waitTime = Math.min(10000 * Math.pow(2, retries - 1), 60000);
+        console.log(`⚠️ Gemini API error (${status}). Retrying in ${waitTime/1000}s... (Attempt ${retries}/${maxRetries})`);
+        await delay(waitTime);
+      } else {
+        console.error(`❌ Non-retriable Gemini error:`, err);
+        break;
+      }
+    }
+  }
+
+  console.log(`🔄 Primary model (${modelArgs.model}) failed. Falling back to ultra-reliable 'gemini-flash-latest'...`);
+  modelArgs.model = 'gemini-flash-latest';
+  
+  let fallbackRetries = 0;
+  while (fallbackRetries < 3) {
+    try {
+      return await ai.models.generateContent(modelArgs);
+    } catch (err) {
+      fallbackRetries++;
+      await delay(5000);
+    }
+  }
+
+  console.log("💀 CRITICAL: All API endpoints failed. Returning null.");
+  return null;
+}
 
 async function generateSocialCopy(article) {
   const prompt = `
@@ -38,7 +77,7 @@ async function generateSocialCopy(article) {
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await generateWithRetry({
       model: 'gemini-3.6-flash',
       contents: prompt,
       config: {
@@ -46,9 +85,10 @@ async function generateSocialCopy(article) {
       }
     });
     
+    if (!response) return null;
     return JSON.parse(response.text);
   } catch (error) {
-    console.error("❌ Failed to generate social copy with Gemini:", error);
+    console.error("❌ Failed to parse social copy from Gemini:", error);
     return null;
   }
 }

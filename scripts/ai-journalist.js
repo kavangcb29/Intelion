@@ -29,8 +29,8 @@ async function generateWithRetry(modelArgs, maxRetries = 5) {
   }
 
   // ALTERNATIVE METHOD: Fallback to highly-available older model
-  console.log(`🔄 Primary model (${modelArgs.model}) failed. Falling back to ultra-reliable 'gemini-1.5-flash'...`);
-  modelArgs.model = 'gemini-1.5-flash';
+  console.log(`🔄 Primary model (${modelArgs.model}) failed. Falling back to ultra-reliable 'gemini-flash-latest'...`);
+  modelArgs.model = 'gemini-flash-latest';
   
   let fallbackRetries = 0;
   while (fallbackRetries < 3) {
